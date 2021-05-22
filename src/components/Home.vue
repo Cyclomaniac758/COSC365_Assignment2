@@ -1,13 +1,13 @@
 <template>
   <el-main id="main">
     <div style="width: 80%; margin-left: auto; margin-right: auto">
-      <el-input placeholder="Search Events" v-model="input" style="width: 75%; padding-right: 20px">
+      <el-input placeholder="Search Events" v-model="input" style="width: 75%; padding-right: 20px ">
       </el-input>
       <el-button @click="search()" type="primary" icon="el-icon-search">Search</el-button>
     </div>
-    <el-table :data="events" :default-sort="{prop: 'date'}" style="width: 100%;" @sort-change="changeSort" height="500">
+    <el-table :data="pagedTableData" :default-sort="{prop: 'date'}" style="width: 100%;" @sort-change="changeSort" height="500" @current-change="goToEvent">
       <el-table-column label="Image" v-slot="scope" align="center">
-        <el-image :src="'http://localhost:4941/api/v1/events/' + events[scope.$index]['eventId'] + '/image'" style="width: 100px; height: 100px">
+        <el-image :src="'http://localhost:4941/api/v1/events/' + events[scope.$index+pageSize*(page-1)]['eventId'] + '/image'" style="width: 100px; height: 100px">
           <template #error>
             <div class="image-slot">
               <i class="el-icon-picture-outline"></i>
@@ -26,7 +26,7 @@
 <!--      </el-table-column>-->
       <el-table-column label="Organizer">
         <el-table-column label="Photo" v-slot="scope" align="center">
-          <el-image :src="'http://localhost:4941/api/v1/users/' + events[scope.$index]['orgId'] + '/image'" style="width: 100px; height: 100px">
+          <el-image :src="'http://localhost:4941/api/v1/users/' + (events[scope.$index+pageSize*(page-1)]['orgId']) + '/image'" style="width: 100px; height: 100px">
             <template #error>
               <div class="image-slot">
                 <i class="el-icon-picture-outline"></i>
@@ -45,11 +45,10 @@
     <el-pagination
         small
         layout="prev, pager, next"
-        page-size="3"
-        page-count="10"
-        :datafld="events"
-    >
-    </el-pagination>
+        page-size="10"
+        :total="getEventsSize"
+        @current-change="setPage"
+    ></el-pagination>
   </el-main>
 </template>
 
@@ -67,13 +66,21 @@ export default {
       dateSort: '',
       attendeeSort: '',
       moment,
-      allEvents: []
+      allEvents: [],
+      page: 1,
+      pageSize: 10,
     }
   },
   mounted() {
     this.getEvents();
   },
   methods: {
+    goToEvent(val) {
+      this.$router.push({path: '/event/' +(val['eventId'])})
+    },
+    setPage(val) {
+      this.page = val;
+    },
     async getEvents() {
       await this.axios.get('http://localhost:4941/api/v1/events')
       .then((response) => {
@@ -142,6 +149,14 @@ export default {
         });
       }
     },
+  },
+  computed: {
+    pagedTableData() {
+      return this.events.slice(this.pageSize * this.page - this.pageSize, this.pageSize * this.page)
+    },
+    getEventsSize() {
+      return this.events.length
+    }
   },
 }
 </script>
