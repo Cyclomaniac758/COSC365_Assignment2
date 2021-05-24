@@ -2,7 +2,9 @@
   <el-main id="main">
     <el-container>
       <el-main>
-        <div :v-model="event" class="grid-content">{{event}}</div>
+        <el-container :v-model="event" class="grid-content">
+          <el-header height="10" id="title">{{ event['title'] }}</el-header>
+        </el-container>
       </el-main>
       <el-aside width="150px">
         <el-scrollbar height="400px">
@@ -24,6 +26,7 @@ export default {
   },
   mounted() {
     let eventId = this.$route.params.id
+    console.log(eventId);
     this.getEventInfo(eventId);
   },
   methods: {
