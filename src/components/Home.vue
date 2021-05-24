@@ -29,7 +29,7 @@
           <el-image :src="'http://localhost:4941/api/v1/users/' + (events[scope.$index+pageSize*(page-1)]['orgId']) + '/image'" style="width: 100px; height: 100px">
             <template #error>
               <div class="image-slot">
-                <i class="el-icon-picture-outline"></i>
+                <i class="el-icon-picture-outline">No Image</i>
               </div>
             </template>
           </el-image>
