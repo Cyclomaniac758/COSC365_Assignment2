@@ -19,17 +19,17 @@
       </el-table-column>
       <el-table-column prop="title" label="Title">
       </el-table-column>
-<!--      <el-table-column prop="categories" label="Categories" v-slot="scope" width="100px" align="center">-->
-<!--        <div v-for="category in events[scope.$index]['categories']" :key="category">-->
-<!--          <el-tag size="medium" style="width: 40px; margin: 5px">{{category}}</el-tag>-->
-<!--        </div>-->
-<!--      </el-table-column>-->
+      <el-table-column prop="categories" label="Categories" v-slot="scope" width="auto" align="center">
+        <div v-for="category in events[scope.$index]['categories']" :key="category">
+          <el-tag size="medium" style="width: auto; margin: 10px">{{category}}</el-tag>
+        </div>
+      </el-table-column>
       <el-table-column label="Organizer">
         <el-table-column label="Photo" v-slot="scope" align="center">
-          <el-image :src="'http://localhost:4941/api/v1/users/' + (events[scope.$index+pageSize*(page-1)]['orgId']) + '/image'" style="width: 100px; height: 100px">
+          <el-image :src="'http://localhost:4941/api/v1/users/' + (events[scope.$index+pageSize*(page-1)]['orgId']) + '/image'" onerror="this.src = 'https://thepeakid.com/wp-content/uploads/2016/03/default-profile-picture.jpg'" style="width: 100px; height: 100px">
             <template #error>
               <div class="image-slot">
-                <i class="el-icon-picture-outline"></i>
+                <i class="el-icon-picture-outline">No Image</i>
               </div>
             </template>
           </el-image>
@@ -69,6 +69,7 @@ export default {
       allEvents: [],
       page: 1,
       pageSize: 10,
+      categories: []
     }
   },
   mounted() {
@@ -104,6 +105,21 @@ export default {
               this.errorFlag = true;
             });
       }
+      await this.axios.get('http://localhost:4941/api/v1/events/categories')
+          .then((res) => {
+            this.categories = res.data;
+            for (let i = 0; i < this.events.length; i++) {
+              let cats = [];
+              for (let cat in this.categories) {
+                for (let n = 0; n < this.events[i]['categories'].length; n++) {
+                  if (this.categories[cat]['id'] === this.events[i]['categories'][n]) {
+                    cats.push(this.categories[cat]['name'])
+                  }
+                }
+              }
+              this.events[i]['categories'] = cats;
+            }
+          })
     },
 
     search() {
