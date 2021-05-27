@@ -17,21 +17,21 @@
     </el-container>
   </el-header>
   <el-dialog v-model="registerVisible" title="Register" width="50%">
-    <el-form ref="registration" :model="registration" >
-      <el-form-item label="First Name">
+    <el-form ref="registration" :model="registration" :rules="regRules">
+      <el-form-item label="First Name" prop="firstName">
         <el-input v-model="registration.firstName"></el-input>
       </el-form-item>
-      <el-form-item label="Last Name">
+      <el-form-item label="Last Name" prop="lastName">
         <el-input v-model="registration.lastName"></el-input>
       </el-form-item>
-      <el-form-item label="Email">
-        <el-input v-model="registration.emial"></el-input>
+      <el-form-item label="Email" prop="email">
+        <el-input v-model="registration.email"></el-input>
       </el-form-item>
-      <el-form-item label="Password">
-        <el-input v-model="registration.password"></el-input>
+      <el-form-item label="Password" prop="password">
+        <el-input v-model="registration.password" show-password></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="checkRegister(); register()">Register</el-button>
+        <el-button type="primary" @click="submitForm('registration')">Register</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -49,34 +49,49 @@ export default {
         lastName: '',
         email: '',
         password: '',
-
+      },
+      regRules: {
+        firstName: [
+          { required: true, message: 'First Name is required', trigger: 'blur' }
+        ],
+        lastName: [
+          { required: true, message: 'Last Name is required', trigger: 'blur' }
+        ],
+        email: [
+          { required: true, message: 'Email is required', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, min: 8, message: 'Length should be at least 8', trigger: 'blur' }
+        ]
       },
       registerVisible: false,
-      email: '',
-      validRegister: false
     }
 
   },
   methods: {
-    async register() {
+    async submitForm(formName) {
 
       console.log(this.registration)
-      if (this.validRegister) {
-        await this.axios.post('http://localhost:4941/api/v1/users/register', this.registration)
-            .then((res) => {
-              console.log(res);
-            })
-      } else {
-        <el-alert type="error" title="Password must be at least 8 characters"></el-alert>
-      }
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          const firstName = this.registration['firstName'];
+          let lastName = this.registration['lastName'];
+          let email = this.registration['email'];
+          let password = this.registration['password'];
+          this.axios.post('http://localhost:4941/api/v1/users/register',
+              {firstName, lastName, email, password}
+            )
+              .then((res) => {
 
-    },
-    checkRegister() {
-      if (this.registration.password.length >= 8) {
-        this.validRegister = true
-      }
+                console.log(res);
+              }).catch((error) => {
+                alert('Invalid Email');
+                console.log(error)
+          })
+        }
+      })
     }
-  }
+  },
 }
 </script>
 
