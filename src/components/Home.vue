@@ -5,7 +5,7 @@
       </el-input>
       <el-button @click="search()" type="primary" icon="el-icon-search">Search</el-button>
     </div>
-    <el-table :data="pagedTableData" :default-sort="{prop: 'date'}" style="width: 100%;" @sort-change="changeSort" height="500" @current-change="goToEvent">
+    <el-table :data="pagedTableData" :default-sort="{prop: 'date'}" style="width: 100%;" @sort-change="changeSort" height="650" @current-change="goToEvent">
       <el-table-column label="Image" v-slot="scope" align="center">
         <el-image :src="'http://localhost:4941/api/v1/events/' + events[scope.$index+pageSize*(page-1)]['eventId'] + '/image'" style="width: 100px; height: 100px">
           <template #error>
@@ -45,7 +45,7 @@
     <el-pagination
         small
         layout="prev, pager, next"
-        page-size="10"
+        page-size=10
         :total="getEventsSize"
         @current-change="setPage"
     ></el-pagination>

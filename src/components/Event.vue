@@ -1,7 +1,7 @@
 <template>
   <div id="main">
     <el-container style="width: 100%" v-model="event">
-        <el-header height="20px">
+        <el-header height="80px">
           <div :v-if="event != null" :v-model="event" class="grid-content" id="title">{{event.title}}</div>
           <div :v-if="event != null" :v-model="event" class="grid-content" style="text-align: center">{{ event.date }}</div>
         </el-header>
@@ -127,11 +127,11 @@ export default {
       attendees: [],
       categories: [],
       filteredCategories: [],
-      similiarEvents: []
+      similiarEvents: [],
+      loggedIn: localStorage.getItem('token') !== null
     }
   },
   mounted() {
-    this.eventId = this.$route.params.id
     this.getEventInfo();
     this.getEventCategories();
     this.getEventAttendees();
@@ -140,6 +140,7 @@ export default {
   },
   methods: {
     async getEventInfo() {
+      this.eventId = this.$route.params.id
       await this.axios.get('http://localhost:4941/api/v1/events/' + this.eventId)
         .then((response) => {
           this.event = response.data;
@@ -153,8 +154,18 @@ export default {
     },
     async getEventAttendees() {
       console.log(localStorage.getItem('auth'))
-      if (localStorage.getItem('auth')) {
+      if (localStorage.getItem('token') !== null) {
         console.log('loggedin');
+        await this.axios.get('http://localhost:4941/api/v1/events/' + this.eventId + '/attendees',
+            {
+              headers: {
+                'X-Authorization': localStorage.getItem('token')
+              }
+            })
+            .then((res) => {
+              this.attendees = res.data;
+              console.log(this.attendees);
+            });
       } else {
         await this.axios.get('http://localhost:4941/api/v1/events/' + this.eventId + '/attendees')
             .then((res) => {
