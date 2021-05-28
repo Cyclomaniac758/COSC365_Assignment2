@@ -1,6 +1,6 @@
 <template>
   <el-button class="button" align="left" @click="showCreateEvent=true" v-if="$route.path=='/'"> Create Event</el-button>
-  <el-dialog v-model="showCreateEvent" title="Create Event" width="50%">
+  <el-dialog v-if="eventForm" v-model="showCreateEvent" title="Create Event" width="50%">
     <el-form ref="eventForm" :model="eventForm" :rules="createRules">
       <el-form-item label="Title" prop="title">
         <el-input v-model="eventForm.title"></el-input>
@@ -27,7 +27,7 @@
           <el-option v-for="cat in categories"
                      :key="cat.id"
                      :label="cat.name"
-                     :value="cat.name">
+                     :value="cat.id">
 
           </el-option>
         </el-select>
@@ -48,7 +48,7 @@
         </el-upload>
       </el-form-item>
       <el-form-item label="Max Capacity" prop="maxCapacity">
-        <el-input v-model="eventForm.maxCapacity"></el-input>
+        <el-input-number v-model="eventForm.maxCapacity" :min="1"></el-input-number>
       </el-form-item>
       <el-form-item label="Event Type" prop ="isOnline">
         <el-select v-model="eventForm.isOnline" placeholder="Select">
@@ -120,37 +120,37 @@ export default {
       categories: [],
       createRules: {
         title: [
-          { required: true, message: 'Title is required', trigger: 'blur' }
+          { required: true, message: 'Title is required', trigger: 'change' }
         ],
         date: [
-          //{ type: 'date', required: true, message: 'Please pick a date', trigger: 'change' },
+          { type: 'date', required: true, message: 'Please pick a date', trigger: 'change' },
         ],
         category: [
-          { required: false, message: 'Category is required', trigger: 'blur' }
+          { required: true, message: 'Category is required', trigger: 'change' }
         ],
         image: [
-          { required: false, message: 'Image is required', trigger: 'blur' }
+          { required: true, message: 'Image is required', trigger: 'change' }
         ],
         description: [
-          { required: true, message: 'Description is required', trigger: 'blur' }
+          { required: true, message: 'Description is required', trigger: 'change' }
         ],
         maxCapacity: [
-          { required: false, trigger: 'blur' }
+          { required: false, trigger: 'change' }
         ],
         isOnline: [
-          { required: true, message: 'Event type is required', trigger: 'blur' }
+          { required: true, message: 'Event type is required', trigger: 'change' }
         ],
         url: [
-          { validator: ifOnline, trigger: 'blur' }
+          { validator: ifOnline, trigger: 'change' }
         ],
         venue: [
-          { validator: ifInPerson, trigger: 'blur' }
+          { validator: ifInPerson, trigger: 'change' }
         ],
         controlAttendance: [
-          { required: true, message: 'Specify whether attendance control is required', trigger: 'blur' }
+          { required: true, message: 'Specify whether attendance control is required', trigger: 'change' }
         ],
         fee: [
-          { required: true, message: 'Fee is required', trigger: 'blur' }
+          { required: true, message: 'Fee is required', trigger: 'change' }
         ]
       }
     }
@@ -169,28 +169,22 @@ export default {
       this.eventForm['image'] = file.raw;
     },
     createEvent(formName) {
-      console.log(this.eventForm['date'])
-      console.log(new Date());
-      console.log(this.$refs[formName])
-      this.$refs[formName].validate((valid) => function () {
-        console.log(8)
+      this.$refs[formName].validate((valid) => {
         if (valid) {
-          console.log(77)
           if (this.eventForm['date'].getTime() > new Date().getTime()) {
-
             console.log(this.eventForm);
             let isOnline = (this.eventForm['isOnline'] === 'Online');
             let title = this.eventForm['title'];
             let description = this.eventForm['description'];
             let categoryIds = this.eventForm['category'];
-            let date = this.eventForm['date'];
+            let date = new Date(this.eventForm['date'].getTime() - (this.eventForm['date'].getTimezoneOffset() * 60000)).toISOString().slice(0,-1).replace('T', ' ');
             let url = this.eventForm['url'];
             let venue = this.eventForm['venue'];
             let capacity = this.eventForm['maxCapacity'];
             let requiresAttendanceControl = this.eventForm['controlAttendance'];
             let fee = this.eventForm['fee'];
             let imageType = this.eventForm['image'].type;
-            console.log(imageType)
+            console.log(categoryIds)
 
             if (imageType === 'image/jpeg' || imageType === 'image/jpg' || imageType === 'image/png' || imageType === 'image/gif') {
               this.axios.post('http://localhost:4941/api/v1/events', {
@@ -210,7 +204,8 @@ export default {
                 }
               }).then((res) => {
                 console.log(res);
-                let eventId = res.data
+                let eventId = res.data['eventId']
+                console.log(eventId)
                 let image = this.eventForm['image']
                 this.axios.put('http://localhost:4941/api/v1/events/' + eventId + '/image', {image},
                     {
@@ -219,6 +214,9 @@ export default {
                         'Content-Type': imageType
                       }
                     })
+                this.showCreateEvent = false;
+              }).catch((err) => {
+                console.log(err);
               })
             }
           } else {
