@@ -55,8 +55,13 @@
                   Accepted Attendees: {{event.attendeeCount}}
                 </el-row>
                 <el-row>
-                  <el-button type="primary" @click="attendeesVisible = true">
+                  <el-button type="info" @click="attendeesVisible = true">
                     View Event Attendees
+                  </el-button>
+                </el-row>
+                <el-row style="margin-top: 5px; width: auto">
+                  <el-button v-if="loggedIn" type="primary" @click="requestAttendance">
+                    Request Attendance
                   </el-button>
                 </el-row>
               </el-main>
@@ -151,6 +156,9 @@ export default {
     handleClose(done) {
       done();
       this.attendeesVisible = false
+    },
+    requestAttendance() {
+      console.log('here')
     },
     async getEventAttendees() {
       console.log(localStorage.getItem('auth'))

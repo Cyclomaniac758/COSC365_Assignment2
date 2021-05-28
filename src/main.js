@@ -20,7 +20,7 @@ const routes = [
         component: Event
     },
     {
-        path: "/users",
+        path: "/users/:id",
         component: Users
     }
 ];

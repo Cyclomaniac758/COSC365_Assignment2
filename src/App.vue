@@ -6,6 +6,7 @@
             <div v-if="loggedIn">
               <CreateEvent @createEvent="createEvent"></CreateEvent>
               <MyEvents @goToEvent="goToEvent"></MyEvents>
+              <el-button v-if="$route.path=='/'" class="button" @click="goToUser">Account</el-button>
             </div>
             <el-label-wrap>
               Eventsy
@@ -134,6 +135,9 @@ export default {
     },
     createEvent() {
 
+    },
+    goToUser() {
+      this.$router.push({path: '/users/' + localStorage.getItem('userId')})
     },
     goToEvent(val) {
       console.log(val);
