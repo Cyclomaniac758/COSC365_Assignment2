@@ -207,7 +207,7 @@ export default {
                 let eventId = res.data['eventId']
                 console.log(eventId)
                 let image = this.eventForm['image']
-                this.axios.put('http://localhost:4941/api/v1/events/' + eventId + '/image', {image},
+                this.axios.put('http://localhost:4941/api/v1/events/' + eventId + '/image', image,
                     {
                       headers: {
                         'X-Authorization': localStorage.getItem('token'),

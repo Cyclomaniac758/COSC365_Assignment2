@@ -10,7 +10,7 @@
             <el-col style="font-weight: bold; font-family: Helvetica; font-size: 40px">{{user.lastName}}</el-col>
           </div>
         </div>
-        <el-row>
+        <el-row v-if="userId">
           <el-image align="left" :src="'http://localhost:4941/api/v1/users/' + userId + '/image'" onerror="this.src = 'https://thepeakid.com/wp-content/uploads/2016/03/default-profile-picture.jpg'" fit="fill" style="width: 100px; height: 100px; border: thin solid #DCDFE6; border-radius: 5px"></el-image>
         </el-row>
         <el-row>
@@ -39,6 +39,7 @@ export default {
     .then((res) => {
       this.user = res.data;
       this.userId = localStorage.getItem('userId');
+      console.log(this.userId)
       console.log(this.$route.params.id);
     })
   }

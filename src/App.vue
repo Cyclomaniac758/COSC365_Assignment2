@@ -175,7 +175,7 @@ export default {
                         let image = this.image;
                         if (imageType !== undefined) {
                           this.axios.put('http://localhost:4941/api/v1/users/' + localStorage.getItem('userId') + '/image',
-                              {image},
+                              image,
                               {
                                 headers: {
                                   'X-Authorization': localStorage.getItem('token'),
